@@ -59,7 +59,8 @@ function sendMessage(event) {
         var chatMessage = {
             sender: username,
             content: messageInput.value,
-            type: 'CHAT'
+            type: 'CHAT',
+            room: "public"
         };
 
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
@@ -68,13 +69,50 @@ function sendMessage(event) {
     event.preventDefault();
 }
 
+function showHistory(messages){
+    messages.forEach((message) => {
+        var messageElement = document.createElement('li');
 
+        messageElement.classList.add('chat-message');
+        createMessageElement(messageElement , message);
+
+        add_to_message_area(messageElement,message);
+    });
+}
+
+function createMessageElement(messageElement,message){
+    var avatarElement = document.createElement('i');
+    var avatarText = document.createTextNode(message.sender[0]);
+    avatarElement.appendChild(avatarText);
+    avatarElement.style['background-color'] = getAvatarColor(message.sender);
+    messageElement.appendChild(avatarElement);
+    var usernameElement = document.createElement('span');
+    var usernameText = document.createTextNode(message.sender);
+    usernameElement.appendChild(usernameText);
+    messageElement.appendChild(usernameElement);
+}
+function add_to_message_area(messageElement , message){
+    var textElement = document.createElement('p');
+    var messageText = document.createTextNode(message.content);
+    textElement.appendChild(messageText);
+    messageElement.appendChild(textElement);
+    messageArea.appendChild(messageElement);
+    messageArea.scrollTop = messageArea.scrollHeight;
+}
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);
-
     var messageElement = document.createElement('li');
-
     if(message.type === 'JOIN') {
+        // calling the api for getting chat history
+        $.ajax({
+            url:"http://localhost:8080/chat.history",
+            dataType : 'json',
+            async : false,
+            success : function(messages) {
+                console.log(messages);
+                showHistory(messages);
+            }
+        });
         messageElement.classList.add('event-message');
         message.content = message.sender + ' joined!';
     } else if (message.type === 'LEAVE') {
@@ -82,30 +120,10 @@ function onMessageReceived(payload) {
         message.content = message.sender + ' left!';
     } else {
         messageElement.classList.add('chat-message');
-
-        var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
-        avatarElement.appendChild(avatarText);
-        avatarElement.style['background-color'] = getAvatarColor(message.sender);
-
-        messageElement.appendChild(avatarElement);
-
-        var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
-        usernameElement.appendChild(usernameText);
-        messageElement.appendChild(usernameElement);
+        createMessageElement(messageElement,message)
     }
-
-    var textElement = document.createElement('p');
-    var messageText = document.createTextNode(message.content);
-    textElement.appendChild(messageText);
-
-    messageElement.appendChild(textElement);
-
-    messageArea.appendChild(messageElement);
-    messageArea.scrollTop = messageArea.scrollHeight;
+    add_to_message_area(messageElement , message);
 }
-
 
 function getAvatarColor(messageSender) {
     var hash = 0;
