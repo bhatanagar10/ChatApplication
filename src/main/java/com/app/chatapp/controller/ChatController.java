@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,22 +23,26 @@ public class ChatController {
 
     @Autowired
     private ChatMessageDataJPA repository;
+
+    @Autowired
+    private SimpMessageSendingOperations messagingTemplate;
+
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage){
+//    @SendTo("/topic/public")
+    public void sendMessage(@Payload ChatMessage chatMessage){
         repository.save(chatMessage);
-        return chatMessage;
+        messagingTemplate.convertAndSend("/topic/" + chatMessage.getRoom() , chatMessage);
     }
 
     @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public ChatMessage addUser(@Payload ChatMessage chatMessage , SimpMessageHeaderAccessor headerAccessor){
+//    @SendTo("/topic/public")
+    public void addUser(@Payload ChatMessage chatMessage , SimpMessageHeaderAccessor headerAccessor){
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username" , chatMessage.getSender());
-        return chatMessage;
+        messagingTemplate.convertAndSend("/topic/" + chatMessage.getRoom() , chatMessage);
     }
 
     @GetMapping("/chat.history")
-    public List<ChatMessage> history(){
-        return repository.findByRoom("public");
+    public List<ChatMessage> history(String room){
+        return repository.findByRoom(room);
     }
 }
