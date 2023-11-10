@@ -1,6 +1,7 @@
 package com.app.chatapp.controller;
 
 import com.app.chatapp.model.ChatMessage;
+import com.app.chatapp.model.MessageType;
 import org.apache.catalina.SessionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class WebSocketEventListener {
             logger.info("User disconnected " + username );
 
             ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(ChatMessage.MessageType.LEAVE);
+            chatMessage.setType(MessageType.LEAVE);
             chatMessage.setSender(username);
 
             messagingTemplate.convertAndSend("/topic/public" , chatMessage);

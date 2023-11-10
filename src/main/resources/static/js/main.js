@@ -74,7 +74,6 @@ function sendMessage(event) {
 function showHistory(messages){
     messages.forEach((message) => {
         var messageElement = document.createElement('li');
-
         messageElement.classList.add('chat-message');
         createMessageElement(messageElement , message);
 
@@ -101,8 +100,10 @@ function add_to_message_area(messageElement , message){
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
 }
+
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);
+    console.log(payload);
     var messageElement = document.createElement('li');
     if(message.type === 'JOIN') {
         // calling the api for getting chat history
@@ -115,7 +116,8 @@ function onMessageReceived(payload) {
                 showHistory(messages);
             },
             data : {
-                room : room
+                room : room,
+                type : 'CHAT'
             }
         });
         messageElement.classList.add('event-message');
