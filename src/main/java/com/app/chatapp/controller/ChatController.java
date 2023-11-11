@@ -25,23 +25,24 @@ public class ChatController {
     private SimpMessageSendingOperations messagingTemplate;
 
     @MessageMapping("/chat.sendMessage")
-//    @SendTo("/topic/public")
     public void sendMessage(@Payload ChatMessage chatMessage){
         repository.save(chatMessage);
         messagingTemplate.convertAndSend("/topic/" + chatMessage.getRoom() , chatMessage);
     }
 
     @MessageMapping("/chat.addUser")
-//    @SendTo("/topic/public")
     public void addUser(@Payload ChatMessage chatMessage , SimpMessageHeaderAccessor headerAccessor){
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username" , chatMessage.getSender());
-        repository.save(chatMessage);
 
+        //delay to process the subscription
+        long start = System.currentTimeMillis();
+        long end = start + 1000;
+        while (System.currentTimeMillis() < end);
         messagingTemplate.convertAndSend("/topic/" + chatMessage.getRoom() , chatMessage);
     }
 
     @GetMapping("/chat.history")
-    public List<ChatMessage> history(String room , MessageType type){
-        return repository.findByRoomAndType(room , type);
+    public List<ChatMessage> history(@Payload String room){
+        return repository.findByRoom(room);
     }
 }

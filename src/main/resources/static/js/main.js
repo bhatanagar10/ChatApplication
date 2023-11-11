@@ -33,7 +33,6 @@ function connect(event) {
     event.preventDefault();
 }
 
-
 function onConnected() {
     // Subscribe to the Public Topic
     stompClient.subscribe('/topic/' + room, onMessageReceived);
@@ -103,7 +102,6 @@ function add_to_message_area(messageElement , message){
 
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);
-    console.log(payload);
     var messageElement = document.createElement('li');
     if(message.type === 'JOIN') {
         // calling the api for getting chat history
@@ -116,8 +114,7 @@ function onMessageReceived(payload) {
                 showHistory(messages);
             },
             data : {
-                room : room,
-                type : 'CHAT'
+                room : room
             }
         });
         messageElement.classList.add('event-message');

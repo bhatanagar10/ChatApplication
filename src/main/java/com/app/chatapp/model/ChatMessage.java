@@ -12,7 +12,8 @@ public class ChatMessage {
     @Id
     @GeneratedValue
     private Integer id;
-    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING)
+    @Transient
     private MessageType type;
     private String content;
     private String sender;
