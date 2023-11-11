@@ -4,6 +4,8 @@ import com.app.chatapp.model.ChatMessage;
 import com.app.chatapp.model.MessageType;
 import com.app.chatapp.repository.ChatMessageDataJPA;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -42,7 +44,8 @@ public class ChatController {
     }
 
     @GetMapping("/chat.history")
-    public List<ChatMessage> history(@Payload String room){
-        return repository.findByRoom(room);
+    public ResponseEntity<List<ChatMessage>> history(@Payload String room){
+        List<ChatMessage> chatMessages =  repository.findByRoom(room);
+        return ResponseEntity.ok(chatMessages);
     }
 }
