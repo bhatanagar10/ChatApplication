@@ -35,6 +35,7 @@ public class ChatController {
     @MessageMapping("/chat.addUser")
     public void addUser(@Payload ChatMessage chatMessage , SimpMessageHeaderAccessor headerAccessor){
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("username" , chatMessage.getSender());
+        Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("room" , chatMessage.getRoom());
 
         //delay to process the subscription
         long start = System.currentTimeMillis();
