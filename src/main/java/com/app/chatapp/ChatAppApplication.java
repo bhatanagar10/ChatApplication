@@ -8,21 +8,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ChatAppApplication implements CommandLineRunner {
+public class ChatAppApplication {
 
     @Autowired
     private ChatMessageService chatMessageService;
     public static void main(String[] args) {
         SpringApplication.run(ChatAppApplication.class, args);
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent("Hi");
-        chatMessage.setSender("Aditya");
-        chatMessage.setRoom("101");
-        chatMessageService.insertChatMessage(chatMessage);
     }
 }
